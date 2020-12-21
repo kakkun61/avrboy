@@ -7,4 +7,5 @@ example/*.o
 example/*.hex
 example/*.out
 example/*.map
+example/*.lst
 avrboy
