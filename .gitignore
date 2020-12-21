@@ -2,3 +2,9 @@
 ._*
 ._*.txt
 .smb*
+.idea
+example/*.o
+example/*.hex
+example/*.out
+example/*.map
+avrboy
