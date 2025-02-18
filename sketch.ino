@@ -11,7 +11,7 @@ This sketch include  ArduinoISP and ATTiny_4_5_9_10_20_40Programmer.
 SPI mode == ArduinoISP
 TPI mode == ATTiny_4_5_9_10_20_40Programmer
 
-Set the  SELECT_BIT(default D3) HIGH or LOW, when you run this sketch.  
+Set the  SELECT_BIT(default D3) HIGH or LOW, when you run this sketch.
 You can select and run "SPI mode" or "TPI mode" by SELECT_BIT status.
 
 #define OUTPUT_LOW 2
@@ -26,7 +26,6 @@ See function setup()
 
 Kimio Kosaka. (May.16.2018)
 */
-
 
 /**************************************************
    TPI programmer for ATtiny4/5/9/10/20/40
@@ -91,13 +90,10 @@ Kimio Kosaka. (May.16.2018)
    Mar 05, 2015: Ksdsksd@gamil.com
                   Added notifications to setting and clearing the system flags.
    Feb 23, 2015: Ksdsksd@gamil.com
-                  Changed the programmer Diagram, This is the config I use, and get a sucessful programming of a tiny10 at 9600 baud.
-   Mar 22, 2014: Ksdsksd@gmail.com
-                  Added the quick reset to high before resetting the device.
-                  Added code to stop the SPI and float the pins for testing the device while connected.
-   Mar 20, 2014: Ksdsksd@gmail.com
-                  Added a quick reset by sending 'r' or 'R' via the serial monitor.
-                  Added a High voltage programming option from pin 9, toggled by 'H'
+                  Changed the programmer Diagram, This is the config I use, and get a sucessful programming of a tiny10
+ at 9600 baud. Mar 22, 2014: Ksdsksd@gmail.com Added the quick reset to high before resetting the device. Added code to
+ stop the SPI and float the pins for testing the device while connected. Mar 20, 2014: Ksdsksd@gmail.com Added a quick
+ reset by sending 'r' or 'R' via the serial monitor. Added a High voltage programming option from pin 9, toggled by 'H'
                   Added a High/low option for providing 12v to the reset pin, toggled by 'T'
    Mar 17, 2014: Ksdsksd@gmail.com
                   Had some trouble with the nibbles being swapped when programming on the 10 & 20,
@@ -113,31 +109,25 @@ Kimio Kosaka. (May.16.2018)
                   Incorperated read, and verify into program. Now have no program size limitation by using 328p.
                   Changed the outHex routines consolidated them into 1, number to be printed, and number of nibbles
                   Added a type check to distinguish between Tiny10/20/40
-                  Added an auto word size check to ensure that there is the proper amount of words written for a 10/20/40
-                  Removed Read program, Verify, and Finish from options
-                  Changed baud rate to 19200 for delay from data written to the chip, to prevent serial buffer overrun.
-   Oct 5, 2012: Ksdsksd@gmail.com
+                  Added an auto word size check to ensure that there is the proper amount of words written for a
+ 10/20/40 Removed Read program, Verify, and Finish from options Changed baud rate to 19200 for delay from data written
+ to the chip, to prevent serial buffer overrun. Oct 5, 2012: Ksdsksd@gmail.com
                 *** Noticed that when programming, the verification fails
                     at times by last 1-2 bytes programmed, and the Tiny would act erratic.
-                    Quick fix was adding 3 NOP's to the end the Tiny's code, and ignoring the errors, the Tiny then performed as expected.
-   Oct 4, 2012: Ksdsksd@gmail.com
-                  Moved all Serial printed strings to program space
-                  Added code to detect Tiny20
+                    Quick fix was adding 3 NOP's to the end the Tiny's code, and ignoring the errors, the Tiny then
+ performed as expected. Oct 4, 2012: Ksdsksd@gmail.com Moved all Serial printed strings to program space Added code to
+ detect Tiny20
 */
 
-
-
-
-
-
 #include <SPI.h>
+
 #include "pins_arduino.h"
 
 // define the instruction set bytes
-#define SLD    0x20
-#define SLDp   0x24
-#define SST    0x60
-#define SSTp   0x64
+#define SLD 0x20
+#define SLDp 0x24
+#define SST 0x60
+#define SSTp 0x64
 #define SSTPRH 0x69
 #define SSTPRL 0x68
 // see functions below ////////////////////////////////
@@ -146,8 +136,8 @@ Kimio Kosaka. (May.16.2018)
 // SLDCS  0b1000aaaa replace a with address bits
 // SSTCS  0b1100aaaa replace a with address bits
 ///////////////////////////////////////////////////////
-#define SKEY   0xE0
-#define NVM_PROGRAM_ENABLE 0x1289AB45CDD888FFULL // the ULL means unsigned long long
+#define SKEY 0xE0
+#define NVM_PROGRAM_ENABLE 0x1289AB45CDD888FFULL  // the ULL means unsigned long long
 
 #define NVMCMD 0x33
 #define NVMCSR 0x32
@@ -174,8 +164,8 @@ Kimio Kosaka. (May.16.2018)
 unsigned short adrs = 0x0000;
 
 // used for storing a program file
-uint8_t data[16]; //program data
-unsigned int progSize = 0; //program size in bytes
+uint8_t data[16];           // program data
+unsigned int progSize = 0;  // program size in bytes
 
 // used for various purposes
 long startTime;
@@ -183,22 +173,21 @@ int timeout;
 uint8_t b, b1, b2, b3;
 boolean idChecked;
 boolean correct;
-char type; // type of chip connected 1 = Tiny10, 2 = Tiny20
+char type;  // type of chip connected 1 = Tiny10, 2 = Tiny20
 char HVP = 0;
 char HVON = 0;
-
-
 
 // ATTiny_4_5_9_10_20_40Programmer SETUP
 void tpi_setup() {
   // set up serial
-//  Serial.begin(BAUDRATE_TPI); // you cant increase this, it'll overrun the buffer
+  //  Serial.begin(BAUDRATE_TPI); // you cant increase this, it'll overrun the buffer
   // set up SPI
   /*  SPI.begin();
     SPI.setBitOrder(LSBFIRST);
     SPI.setDataMode(SPI_MODE0);
     SPI.setClockDivider(SPI_CLOCK_DIV32);
-  */  start_tpi();
+  */
+  start_tpi();
 
   pinMode(HVReset, OUTPUT);
   // initialize memory pointer register
@@ -207,11 +196,9 @@ void tpi_setup() {
   timeout = 20000;
   idChecked = false;
   tpi_loop();
-} // end setup()
+}  // end setup()
 
-
-void hvserial()
-{
+void hvserial() {
   if (HVP)
     Serial.println(F("***High Voltage Programming Enabled***"));
   else
@@ -220,24 +207,18 @@ void hvserial()
   Serial.print(F("Pin 9 "));
   Serial.print(HVON ? F("HIGH") : F("LOW"));
   Serial.print(F(" supplies 12v"));
-
 }
 
-
-void hvReset(char highLow)
-{
-  if (HVP)
-  {
-    if (HVON) //if high enables 12v
-      highLow = !highLow; // invert the typical reset
+void hvReset(char highLow) {
+  if (HVP) {
+    if (HVON)              // if high enables 12v
+      highLow = !highLow;  // invert the typical reset
     digitalWrite(HVReset, highLow);
-  }
-  else
+  } else
     digitalWrite(SS, highLow);
 }
 
-void quickReset()
-{
+void quickReset() {
   digitalWrite(SS, HIGH);
   delay(1);
   digitalWrite(SS, LOW);
@@ -254,15 +235,15 @@ void start_tpi() {
   // enter TPI programming mode
   hvReset(LOW);
   //    digitalWrite(SS, LOW); // assert RESET on tiny
-  delay(1); // t_RST min = 400 ns @ Vcc = 5 V
+  delay(1);  // t_RST min = 400 ns @ Vcc = 5 V
 
-  SPI.transfer(0xff); // activate TPI by emitting
-  SPI.transfer(0xff); // 16 or more pulses on TPICLK
-  SPI.transfer(0xff); // while holding TPIDATA to "1"
+  SPI.transfer(0xff);  // activate TPI by emitting
+  SPI.transfer(0xff);  // 16 or more pulses on TPICLK
+  SPI.transfer(0xff);  // while holding TPIDATA to "1"
 
-  writeCSS(0x02, 0x04); // TPIPCR, guard time = 8bits (default=128)
+  writeCSS(0x02, 0x04);  // TPIPCR, guard time = 8bits (default=128)
 
-  send_skey(NVM_PROGRAM_ENABLE); // enable NVM interface
+  send_skey(NVM_PROGRAM_ENABLE);  // enable NVM interface
   // wait for NVM to be enabled
   while ((readCSS(0x00) & 0x02) < 1) {
     // wait
@@ -271,12 +252,10 @@ void start_tpi() {
 }
 
 void setLockBits() {
-
   Serial.print(F("Locking... Are you sure? Y/N"));
   while (Serial.available() < 1);
   char yn = Serial.read();
-  if (yn == 'n' || yn == 'N')
-    return;
+  if (yn == 'n' || yn == 'N') return;
 
   setPointer(0x3F00);
   writeIO(NVMCMD, NVM_WORD_WRITE);
@@ -286,17 +265,14 @@ void setLockBits() {
   tpi_send_byte(SSTp);
   tpi_send_byte(0xFF);
 
-
   while ((readIO(NVMCSR) & (1 << 7)) != 0x00);
   Serial.print(F("Locked..."));
 }
 
-
-
 // ATTiny_4_5_9_10_20_40Programmer LOOP
 
 void tpi_loop() {
-  while(1){
+  while (1) {
     if (!idChecked) {
       //    start_tpi();
       checkID();
@@ -319,12 +295,11 @@ void tpi_loop() {
     //** 'L' = Set Lock Bits
     //** 'I' = Check the device ID
 
-
     char comnd = Sread();
 
-    switch ( comnd ) {
+    switch (comnd) {
       case 'r':
-      case'R':
+      case 'R':
         quickReset();
         break;
 
@@ -342,12 +317,10 @@ void tpi_loop() {
         hvserial();
         break;
 
-
       case 'P':
         if (!writeProgram()) {
           startTime = millis();
-          while (millis() - startTime < 8000)
-            Serial.read();// if exited due to error, disregard all other serial data
+          while (millis() - startTime < 8000) Serial.read();  // if exited due to error, disregard all other serial data
         }
 
         break;
@@ -380,13 +353,9 @@ void tpi_loop() {
   }
 }
 
-void ERROR_pgmSize(void)
-{
-  Serial.println(F("program size is 0??"));
-}
+void ERROR_pgmSize(void) { Serial.println(F("program size is 0??")); }
 
-void ERROR_data(char i)
-{
+void ERROR_data(char i) {
   Serial.println(F("couldn't receive data:"));
   switch (i) {
     case TimeOut:
@@ -402,9 +371,7 @@ void ERROR_data(char i)
     default:
       break;
   }
-
 }
-
 
 //  print the register, SRAM, config and signature memory
 void dumpMemory() {
@@ -415,32 +382,31 @@ void dumpMemory() {
 
   Serial.println(F("Current memory state:"));
   if (type != Tiny4_5)
-    len = 0x400 * type; //the memory length for a 10/20/40 is 1024/2048/4096
+    len = 0x400 * type;  // the memory length for a 10/20/40 is 1024/2048/4096
   else
-    len = 0x200; //tiny 4/5 has 512 bytes
+    len = 0x200;  // tiny 4/5 has 512 bytes
   len += 0x4000;
 
   while (adrs < len) {
     // read the byte at the current pointer address
     // and increment address
     tpi_send_byte(SLDp);
-    b = tpi_receive_byte(); // get data byte
+    b = tpi_receive_byte();  // get data byte
 
     // read all the memory, but only print
     // the register, SRAM, config and signature memory
-    if ((0x0000 <= adrs && adrs <= 0x005F) // register/SRAM
-        | (0x3F00 <= adrs && adrs <= 0x3F01) // NVM lock bits
-        | (0x3F40 <= adrs && adrs <= 0x3F41) // config
-        | (0x3F80 <= adrs && adrs <= 0x3F81) // calibration
-        | (0x3FC0 <= adrs && adrs <= 0x3FC3) // ID
-        | (0x4000 <= adrs && adrs <= len - 1) ) { // program
+    if ((0x0000 <= adrs && adrs <= 0x005F)        // register/SRAM
+        | (0x3F00 <= adrs && adrs <= 0x3F01)      // NVM lock bits
+        | (0x3F40 <= adrs && adrs <= 0x3F41)      // config
+        | (0x3F80 <= adrs && adrs <= 0x3F81)      // calibration
+        | (0x3FC0 <= adrs && adrs <= 0x3FC3)      // ID
+        | (0x4000 <= adrs && adrs <= len - 1)) {  // program
       // print +number along the top
-      if ((0x00 == adrs)
-          | (0x3f00 == adrs) // NVM lock bits
-          | (0x3F40 == adrs) // config
-          | (0x3F80 == adrs) // calibration
-          | (0x3FC0 == adrs) // ID
-          | (0x4000 == adrs) ) {
+      if ((0x00 == adrs) | (0x3f00 == adrs)  // NVM lock bits
+          | (0x3F40 == adrs)                 // config
+          | (0x3F80 == adrs)                 // calibration
+          | (0x3FC0 == adrs)                 // ID
+          | (0x4000 == adrs)) {
         Serial.println();
         if (adrs == 0x0000) {
           Serial.print(F("registers, SRAM"));
@@ -461,8 +427,7 @@ void dumpMemory() {
           Serial.print(F("program"));
         }
         Serial.println();
-        for (i = 0; i < 5; i++)
-          Serial.print(F(" "));
+        for (i = 0; i < 5; i++) Serial.print(F(" "));
         for (i = 0; i < 16; i++) {
           Serial.print(F(" +"));
           Serial.print(i, HEX);
@@ -472,20 +437,19 @@ void dumpMemory() {
       if (0 == (0x000f & adrs)) {
         Serial.println();
         outHex(adrs, 4);
-        Serial.print(F(": ")); // delimiter
+        Serial.print(F(": "));  // delimiter
       }
       outHex(b, 2);
       Serial.print(F(" "));
     }
-    adrs++; // increment memory address
+    adrs++;  // increment memory address
     if (adrs == 0x0060) {
       // skip reserved memory
       setPointer(0x3F00);
     }
   }
   Serial.println(F(" "));
-} // end dumpMemory()
-
+}  // end dumpMemory()
 
 // receive and translate the contents of a hex file, Program and verify on the fly
 boolean writeProgram() {
@@ -501,7 +465,7 @@ boolean writeProgram() {
   tadrs = adrs = 0x4000;
   correct = true;
   unsigned long pgmStartTime = millis();
-  eraseChip(); // erase chip
+  eraseChip();  // erase chip
   char words = (type != Tiny4_5 ? type : 1);
   char b1, b2;
   // read in the data and
@@ -512,10 +476,9 @@ boolean writeProgram() {
         ERROR_data(TimeOut);
         return false;
       }
-      if (pgmStartTime == 0)
-        pgmStartTime = millis();
+      if (pgmStartTime == 0) pgmStartTime = millis();
     }
-    if (Sread() != ':') { // maybe it was a newline??
+    if (Sread() != ':') {  // maybe it was a newline??
       if (Sread() != ':') {
         ERROR_data(HexError);
         return false;
@@ -532,8 +495,7 @@ boolean writeProgram() {
     addr[1] = Sread();
     addr[2] = Sread();
     addr[3] = Sread();
-    if (linelength != 0x00 && addr[0] == '0' && addr[1] == '0' && addr[2] == '0' && addr[3] == '0')
-      currentByte = 0;
+    if (linelength != 0x00 && addr[0] == '0' && addr[1] == '0' && addr[2] == '0' && addr[3] == '0') currentByte = 0;
 
     // read type thingy. "01" means end of file
     something[0] = Sread();
@@ -548,8 +510,7 @@ boolean writeProgram() {
         Sread();
       }
 
-    }
-    else {
+    } else {
       // read in the data
       for (int k = 0; k < linelength; k++) {
         while (Serial.available() < 1) {
@@ -568,42 +529,39 @@ boolean writeProgram() {
           return 0;
         }
 
-
-        if (fileEnd) //has the end of the file been reached?
-          while (currentByte < 2 * words) { // append zeros to align the word count to program
+        if (fileEnd)                         // has the end of the file been reached?
+          while (currentByte < 2 * words) {  // append zeros to align the word count to program
             data[currentByte] = 0;
             currentByte++;
           }
 
+        if (currentByte == 2 * words) {  // is the word/Dword/Qword here?
 
-
-        if ( currentByte == 2 * words ) { // is the word/Dword/Qword here?
-
-          currentByte = 0; // yes, reset counter
-          setPointer(tadrs); // point to the address to program
+          currentByte = 0;    // yes, reset counter
+          setPointer(tadrs);  // point to the address to program
           writeIO(NVMCMD, NVM_WORD_WRITE);
-          for (int i = 0; i < 2 * words; i += 2) { // loop for each word size depending on micro
+          for (int i = 0; i < 2 * words; i += 2) {  // loop for each word size depending on micro
 
             // now write a word to program memory
             tpi_send_byte(SSTp);
-            tpi_send_byte(data[i]); // LSB first
+            tpi_send_byte(data[i]);  // LSB first
             tpi_send_byte(SSTp);
-            tpi_send_byte(data[i + 1]); // then MSB
-            SPI.transfer(0xff); //send idle between words
-            SPI.transfer(0xff); //send idle between words
+            tpi_send_byte(data[i + 1]);  // then MSB
+            SPI.transfer(0xff);          // send idle between words
+            SPI.transfer(0xff);          // send idle between words
           }
-          while ((readIO(NVMCSR) & (1 << 7)) != 0x00) {} // wait for write to finish
+          while ((readIO(NVMCSR) & (1 << 7)) != 0x00) {
+          }  // wait for write to finish
 
           writeIO(NVMCMD, NVM_NOP);
           SPI.transfer(0xff);
           SPI.transfer(0xff);
 
-
-          //verify written words
+          // verify written words
           setPointer(tadrs);
           for (int c = 0; c < 2 * words; c++) {
             tpi_send_byte(SLDp);
-            b = tpi_receive_byte(); // get data byte
+            b = tpi_receive_byte();  // get data byte
 
             if (b != data[c]) {
               correct = false;
@@ -616,8 +574,7 @@ boolean writeProgram() {
               outHex(b, 2);
               Serial.println();
 
-              if (!correct)
-                return false;
+              if (!correct) return false;
             }
           }
           tadrs += 2 * words;
@@ -634,7 +591,6 @@ boolean writeProgram() {
       }
       chksm[0] = Sread();
       chksm[1] = Sread();
-
     }
   }
   // the program was successfully written
@@ -653,10 +609,9 @@ boolean writeProgram() {
   return true;
 }
 
-
 void eraseChip() {
   // initialize memory pointer register
-  setPointer(0x4001); // need the +1 for chip erase
+  setPointer(0x4001);  // need the +1 for chip erase
 
   // erase the chip
   writeIO(NVMCMD, NVM_CHIP_ERASE);
@@ -691,7 +646,7 @@ void setConfig(boolean val) {
   }
   char comnd = Serial.read();
   setPointer(0x3F40);
-  writeIO(NVMCMD, (val ? NVM_WORD_WRITE : NVM_SECTION_ERASE) );
+  writeIO(NVMCMD, (val ? NVM_WORD_WRITE : NVM_SECTION_ERASE));
 
   if (comnd == 'c') {
     tpi_send_byte(SSTp);
@@ -732,7 +687,6 @@ void setConfig(boolean val) {
   SPI.transfer(0xff);
   SPI.transfer(0xff);
   if (comnd != 'x') {
-
     Serial.print(F("\n\nSuccessfully "));
     if (val)
       Serial.print(F("Set "));
@@ -748,7 +702,6 @@ void setConfig(boolean val) {
       Serial.print(F("Reset"));
 
     Serial.println(F("\" Flag\n"));
-
   }
 }
 
@@ -758,9 +711,9 @@ void finish() {
   SPI.transfer(0xff);
   hvReset(HIGH);
   //  digitalWrite(SS, HIGH); // release RESET
-  delay(1); // t_RST min = 400 ns @ Vcc = 5 V
+  delay(1);  // t_RST min = 400 ns @ Vcc = 5 V
   SPI.end();
-  DDRB &= 0b11000011; //tri-state spi so target can be tested
+  DDRB &= 0b11000011;  // tri-state spi so target can be tested
   PORTB &= 0b11000011;
 }
 
@@ -805,27 +758,27 @@ void checkID() {
   using 2 SPI data bytes (2 x 8 = 16 clocks)
   (with 4 extra idle bits)
 */
-void tpi_send_byte( uint8_t data ) {
+void tpi_send_byte(uint8_t data) {
   // compute partiy bit
   uint8_t par = data;
-  par ^= (par >> 4); // b[7:4] (+) b[3:0]
-  par ^= (par >> 2); // b[3:2] (+) b[1:0]
-  par ^= (par >> 1); // b[1] (+) b[0]
+  par ^= (par >> 4);  // b[7:4] (+) b[3:0]
+  par ^= (par >> 2);  // b[3:2] (+) b[1:0]
+  par ^= (par >> 1);  // b[1] (+) b[0]
 
   // REMEMBER: this is in LSBfirst mode and idle is high
   // (2 idle) + (1 start bit) + (data[4:0])
   SPI.transfer(0x03 | (data << 3));
   // (data[7:5]) + (1 parity) + (2 stop bits) + (2 idle)
   SPI.transfer(0xf0 | (par << 3) | (data >> 5));
-} // end tpi_send_byte()
+}  // end tpi_send_byte()
 
 /*
   receive TPI 12-bit format byte data
   via SPI 2 bytes (16 clocks) or 3 bytes (24 clocks)
 */
-uint8_t tpi_receive_byte( void ) {
-  //uint8_t b1, b2, b3;
-  // keep transmitting high(idle) while waiting for a start bit
+uint8_t tpi_receive_byte(void) {
+  // uint8_t b1, b2, b3;
+  //  keep transmitting high(idle) while waiting for a start bit
   do {
     b1 = SPI.transfer(0xff);
   } while (0xff == b1);
@@ -839,17 +792,17 @@ uint8_t tpi_receive_byte( void ) {
 
   // now shift the bits into the right positions
   // b1 should hold only idle and start bits = 0b01111111
-  while (0x7f != b1) { // data not aligned
-    b2 <<= 1; // shift left data bits
-    if (0x80 & b1) { // carry from 1st byte
-      b2 |= 1; // set bit
+  while (0x7f != b1) {  // data not aligned
+    b2 <<= 1;           // shift left data bits
+    if (0x80 & b1) {    // carry from 1st byte
+      b2 |= 1;          // set bit
     }
     b1 <<= 1;
-    b1 |= 0x01; // fill with idle bit (1)
+    b1 |= 0x01;  // fill with idle bit (1)
   }
   // now the data byte is stored in b2
-  return ( b2 );
-} // end tpi_receive_byte()
+  return (b2);
+}  // end tpi_receive_byte()
 
 // send the 64 bit NVM key
 void send_skey(uint64_t nvm_key) {
@@ -858,7 +811,7 @@ void send_skey(uint64_t nvm_key) {
     tpi_send_byte(nvm_key & 0xFF);
     nvm_key >>= 8;
   }
-} // end send_skey()
+}  // end send_skey()
 
 // sets the pointer address
 void setPointer(unsigned short address) {
@@ -914,24 +867,23 @@ uint8_t byteval(char c1, char c2) {
 }
 
 char Sread(void) {
-  while (Serial.available() < 1) {}
+  while (Serial.available() < 1) {
+  }
   return Serial.read();
 }
 
-
-void outHex(unsigned int n, char l) { // call with the number to be printed, and # of nibbles expected.
-  for (char count = l - 1; count > 0; count--) { // quick and dirty to add zeros to the hex value
-    if (((n >> (count * 4)) & 0x0f) == 0) // if MSB is 0
-      Serial.print(F("0"));  //prepend a 0
+void outHex(unsigned int n, char l) {             // call with the number to be printed, and # of nibbles expected.
+  for (char count = l - 1; count > 0; count--) {  // quick and dirty to add zeros to the hex value
+    if (((n >> (count * 4)) & 0x0f) == 0)         // if MSB is 0
+      Serial.print(F("0"));                       // prepend a 0
     else
-      break;  //exit the for loop
+      break;  // exit the for loop
   }
   Serial.print(n, HEX);
 }
 
 // end of ATtiny_4_5_9_10_20_40Programmer
 /*******************************************************************************************************/
-
 
 // ArduinoISP
 // Copyright (c) 2008-2011 Randall Bohn
@@ -974,7 +926,6 @@ void outHex(unsigned int n, char l) { // call with the number to be printed, and
 #include "Arduino.h"
 #undef SERIAL
 
-
 #define PROG_FLICKER true
 
 // Configure SPI clock (in Hz).
@@ -985,8 +936,7 @@ void outHex(unsigned int n, char l) { // call with the number to be printed, and
 //
 // A clock slow enough for an ATtiny85 @ 1 MHz, is a reasonable default:
 
-#define SPI_CLOCK     (1000000/6)
-
+#define SPI_CLOCK (1000000 / 6)
 
 // Select hardware or software SPI, depending on SPI clock.
 // Currently only for AVR, for other architectures (Due, Zero,...), hardware SPI
@@ -1005,9 +955,9 @@ void outHex(unsigned int n, char l) { // call with the number to be printed, and
 // The standard pin configuration.
 #ifndef ARDUINO_HOODLOADER2
 
-#define RESET     10 // Use pin 10 to reset the target rather than SS
-#define LED_HB    9
-#define LED_ERR   8
+#define RESET 10  // Use pin 10 to reset the target rather than SS
+#define LED_HB 9
+#define LED_ERR 8
 #define LED_PMODE 7
 
 // Uncomment following line to use the old Uno style wiring
@@ -1017,9 +967,9 @@ void outHex(unsigned int n, char l) { // call with the number to be printed, and
 
 #ifdef USE_OLD_STYLE_WIRING
 
-#define PIN_MOSI  11
-#define PIN_MISO  12
-#define PIN_SCK   13
+#define PIN_MOSI 11
+#define PIN_MISO 12
+#define PIN_SCK 13
 
 #endif
 
@@ -1027,31 +977,30 @@ void outHex(unsigned int n, char l) { // call with the number to be printed, and
 // on Uno or Mega boards. We must use pins that are broken out:
 #else
 
-#define RESET       4
-#define LED_HB      7
-#define LED_ERR     6
-#define LED_PMODE   5
+#define RESET 4
+#define LED_HB 7
+#define LED_ERR 6
+#define LED_PMODE 5
 
 #endif
 
 // By default, use hardware SPI pins:
 #ifndef PIN_MOSI
-#define PIN_MOSI  MOSI
+#define PIN_MOSI MOSI
 #endif
 
 #ifndef PIN_MISO
-#define PIN_MISO  MISO
+#define PIN_MISO MISO
 #endif
 
 #ifndef PIN_SCK
-#define PIN_SCK   SCK
+#define PIN_SCK SCK
 #endif
 
 // Force bitbanged SPI if not using the hardware SPI pins:
-#if (PIN_MISO != MISO) ||  (PIN_MOSI != MOSI) || (PIN_SCK != SCK)
+#if (PIN_MISO != MISO) || (PIN_MOSI != MOSI) || (PIN_SCK != SCK)
 #undef USE_HARDWARE_SPI
 #endif
-
 
 // Configure the serial port to use.
 //
@@ -1071,25 +1020,23 @@ void outHex(unsigned int n, char l) { // call with the number to be printed, and
 #define SERIAL Serial
 #endif
 
-
 // Configure the baud rate:
 
 #define BAUDRATE_SPI 19200
 // #define BAUDRATE 115200
 // #define BAUDRATE 1000000
 
-
 #define HWVER 2
 #define SWMAJ 1
 #define SWMIN 18
 
 // STK Definitions
-#define STK_OK      0x10
-#define STK_FAILED  0x11
+#define STK_OK 0x10
+#define STK_FAILED 0x11
 #define STK_UNKNOWN 0x12
-#define STK_INSYNC  0x14
-#define STK_NOSYNC  0x15
-#define CRC_EOP     0x20 //ok it is a space...
+#define STK_INSYNC 0x14
+#define STK_NOSYNC 0x15
+#define CRC_EOP 0x20  // ok it is a space...
 
 void pulse(int pin, int times);
 
@@ -1100,51 +1047,50 @@ void pulse(int pin, int times);
 #define SPI_MODE0 0x00
 
 class SPISettings {
-  public:
-    // clock is in Hz
-    SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) : clock(clock) {
-      (void) bitOrder;
-      (void) dataMode;
-    };
+ public:
+  // clock is in Hz
+  SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) : clock(clock) {
+    (void) bitOrder;
+    (void) dataMode;
+  };
 
-  private:
-    uint32_t clock;
+ private:
+  uint32_t clock;
 
-    friend class BitBangedSPI;
+  friend class BitBangedSPI;
 };
 
 class BitBangedSPI {
-  public:
-    void begin() {
-      digitalWrite(PIN_SCK, LOW);
-      digitalWrite(PIN_MOSI, LOW);
-      pinMode(PIN_SCK, OUTPUT);
-      pinMode(PIN_MOSI, OUTPUT);
-      pinMode(PIN_MISO, INPUT);
+ public:
+  void begin() {
+    digitalWrite(PIN_SCK, LOW);
+    digitalWrite(PIN_MOSI, LOW);
+    pinMode(PIN_SCK, OUTPUT);
+    pinMode(PIN_MOSI, OUTPUT);
+    pinMode(PIN_MISO, INPUT);
+  }
+
+  void beginTransaction(SPISettings settings) {
+    pulseWidth = (500000 + settings.clock - 1) / settings.clock;
+    if (pulseWidth == 0) pulseWidth = 1;
+  }
+
+  void end() {}
+
+  uint8_t transfer(uint8_t b) {
+    for (unsigned int i = 0; i < 8; ++i) {
+      digitalWrite(PIN_MOSI, (b & 0x80) ? HIGH : LOW);
+      digitalWrite(PIN_SCK, HIGH);
+      delayMicroseconds(pulseWidth);
+      b = (b << 1) | digitalRead(PIN_MISO);
+      digitalWrite(PIN_SCK, LOW);  // slow pulse
+      delayMicroseconds(pulseWidth);
     }
+    return b;
+  }
 
-    void beginTransaction(SPISettings settings) {
-      pulseWidth = (500000 + settings.clock - 1) / settings.clock;
-      if (pulseWidth == 0)
-        pulseWidth = 1;
-    }
-
-    void end() {}
-
-    uint8_t transfer (uint8_t b) {
-      for (unsigned int i = 0; i < 8; ++i) {
-        digitalWrite(PIN_MOSI, (b & 0x80) ? HIGH : LOW);
-        digitalWrite(PIN_SCK, HIGH);
-        delayMicroseconds(pulseWidth);
-        b = (b << 1) | digitalRead(PIN_MISO);
-        digitalWrite(PIN_SCK, LOW); // slow pulse
-        delayMicroseconds(pulseWidth);
-      }
-      return b;
-    }
-
-  private:
-    unsigned long pulseWidth; // in microseconds
+ private:
+  unsigned long pulseWidth;  // in microseconds
 };
 
 static BitBangedSPI SPI;
@@ -1153,7 +1099,7 @@ static BitBangedSPI SPI;
 
 // ArduinoISP setup()
 void isp_setup() {
-//  SERIAL.begin(BAUDRATE);
+  //  SERIAL.begin(BAUDRATE);
 
   pinMode(LED_PMODE, OUTPUT);
   pulse(LED_PMODE, 2);
@@ -1168,9 +1114,9 @@ int error = 0;
 int pmode = 0;
 // address for reading and writing, set by 'U' command
 unsigned int here;
-uint8_t buff[256]; // global block storage
+uint8_t buff[256];  // global block storage
 
-#define beget16(addr) (*addr * 256 + *(addr+1) )
+#define beget16(addr) (*addr * 256 + *(addr + 1))
 typedef struct param {
   uint8_t devicecode;
   uint8_t revision;
@@ -1185,8 +1131,7 @@ typedef struct param {
   uint16_t pagesize;
   uint16_t eepromsize;
   uint32_t flashsize;
-}
-parameter;
+} parameter;
 
 parameter param;
 
@@ -1196,8 +1141,7 @@ int8_t hbdelta = 8;
 void heartbeat() {
   static unsigned long last_time = 0;
   unsigned long now = millis();
-  if ((now - last_time) < 40)
-    return;
+  if ((now - last_time) < 40) return;
   last_time = now;
   if (hbval > 192) hbdelta = -hbdelta;
   if (hbval < 32) hbdelta = -hbdelta;
@@ -1211,10 +1155,9 @@ void reset_target(bool reset) {
   digitalWrite(RESET, ((reset && rst_active_high) || (!reset && !rst_active_high)) ? HIGH : LOW);
 }
 
-
 // ArduinoISP LOOP
 void isp_loop(void) {
-  while(1){
+  while (1) {
     // is pmode active?
     if (pmode) {
       digitalWrite(LED_PMODE, HIGH);
@@ -1271,22 +1214,22 @@ uint8_t spi_transaction(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
 
 void empty_reply() {
   if (CRC_EOP == getch()) {
-    SERIAL.print((char)STK_INSYNC);
-    SERIAL.print((char)STK_OK);
+    SERIAL.print((char) STK_INSYNC);
+    SERIAL.print((char) STK_OK);
   } else {
     error++;
-    SERIAL.print((char)STK_NOSYNC);
+    SERIAL.print((char) STK_NOSYNC);
   }
 }
 
 void breply(uint8_t b) {
   if (CRC_EOP == getch()) {
-    SERIAL.print((char)STK_INSYNC);
-    SERIAL.print((char)b);
-    SERIAL.print((char)STK_OK);
+    SERIAL.print((char) STK_INSYNC);
+    SERIAL.print((char) b);
+    SERIAL.print((char) STK_OK);
   } else {
     error++;
-    SERIAL.print((char)STK_NOSYNC);
+    SERIAL.print((char) STK_NOSYNC);
   }
 }
 
@@ -1302,7 +1245,7 @@ void get_version(uint8_t c) {
       breply(SWMIN);
       break;
     case 0x93:
-      breply('S'); // serial programmer
+      breply('S');  // serial programmer
       break;
     default:
       breply(0);
@@ -1312,32 +1255,28 @@ void get_version(uint8_t c) {
 void set_parameters() {
   // call this after reading parameter packet into buff[]
   param.devicecode = buff[0];
-  param.revision   = buff[1];
-  param.progtype   = buff[2];
-  param.parmode    = buff[3];
-  param.polling    = buff[4];
-  param.selftimed  = buff[5];
-  param.lockbytes  = buff[6];
-  param.fusebytes  = buff[7];
-  param.flashpoll  = buff[8];
+  param.revision = buff[1];
+  param.progtype = buff[2];
+  param.parmode = buff[3];
+  param.polling = buff[4];
+  param.selftimed = buff[5];
+  param.lockbytes = buff[6];
+  param.fusebytes = buff[7];
+  param.flashpoll = buff[8];
   // ignore buff[9] (= buff[8])
   // following are 16 bits (big endian)
   param.eeprompoll = beget16(&buff[10]);
-  param.pagesize   = beget16(&buff[12]);
+  param.pagesize = beget16(&buff[12]);
   param.eepromsize = beget16(&buff[14]);
 
   // 32 bits flashsize (big endian)
-  param.flashsize = buff[16] * 0x01000000
-                    + buff[17] * 0x00010000
-                    + buff[18] * 0x00000100
-                    + buff[19];
+  param.flashsize = buff[16] * 0x01000000 + buff[17] * 0x00010000 + buff[18] * 0x00000100 + buff[19];
 
   // AVR devices have active low reset, AT89Sx are active high
   rst_active_high = (param.devicecode >= 0xe0);
 }
 
 void start_pmode() {
-
   // Reset target before driving PIN_SCK or PIN_MOSI
 
   // SPI.begin() will configure SS as output, so SPI master mode is selected.
@@ -1353,7 +1292,7 @@ void start_pmode() {
 
   // Pulse RESET after PIN_SCK is low:
   digitalWrite(PIN_SCK, LOW);
-  delay(20); // discharge PIN_SCK, value arbitrarily chosen
+  delay(20);  // discharge PIN_SCK, value arbitrarily chosen
   reset_target(false);
   // Pulse must be minimum 2 target CPU clock cycles so 100 usec is ok for CPU
   // speeds above 20 KHz
@@ -1361,7 +1300,7 @@ void start_pmode() {
   reset_target(true);
 
   // Send the enable programming command:
-  delay(50); // datasheet: must be > 20 msec
+  delay(50);  // datasheet: must be > 20 msec
   spi_transaction(0xAC, 0x53, 0x00, 0x00);
   pmode = 1;
 }
@@ -1385,10 +1324,7 @@ void universal() {
 }
 
 void flash(uint8_t hilo, unsigned int addr, uint8_t data) {
-  spi_transaction(0x40 + 8 * hilo,
-                  addr >> 8 & 0xFF,
-                  addr & 0xFF,
-                  data);
+  spi_transaction(0x40 + 8 * hilo, addr >> 8 & 0xFF, addr & 0xFF, data);
 }
 void commit(unsigned int addr) {
   if (PROG_FLICKER) {
@@ -1416,7 +1352,6 @@ unsigned int current_page() {
   }
   return here;
 }
-
 
 void write_flash(int length) {
   fill(length);
@@ -1489,7 +1424,7 @@ void program_page() {
     return;
   }
   if (memtype == 'E') {
-    result = (char)write_eeprom(length);
+    result = (char) write_eeprom(length);
     if (CRC_EOP == getch()) {
       SERIAL.print((char) STK_INSYNC);
       SERIAL.print(result);
@@ -1499,15 +1434,12 @@ void program_page() {
     }
     return;
   }
-  SERIAL.print((char)STK_FAILED);
+  SERIAL.print((char) STK_FAILED);
   return;
 }
 
 uint8_t flash_read(uint8_t hilo, unsigned int addr) {
-  return spi_transaction(0x20 + hilo * 8,
-                         (addr >> 8) & 0xFF,
-                         addr & 0xFF,
-                         0);
+  return spi_transaction(0x20 + hilo * 8, (addr >> 8) & 0xFF, addr & 0xFF, 0);
 }
 
 char flash_read_page(int length) {
@@ -1533,7 +1465,7 @@ char eeprom_read_page(int length) {
 }
 
 void read_page() {
-  char result = (char)STK_FAILED;
+  char result = (char) STK_FAILED;
   int length = 256 * getch();
   length += getch();
   char memtype = getch();
@@ -1566,13 +1498,12 @@ void read_signature() {
 //////////////////////////////////////////
 //////////////////////////////////////////
 
-
 ////////////////////////////////////
 ////////////////////////////////////
 void avrisp() {
   uint8_t ch = getch();
   switch (ch) {
-    case '0': // signon
+    case '0':  // signon
       error = 0;
       empty_reply();
       break;
@@ -1581,8 +1512,7 @@ void avrisp() {
         SERIAL.print((char) STK_INSYNC);
         SERIAL.print("AVR ISP");
         SERIAL.print((char) STK_OK);
-      }
-      else {
+      } else {
         error++;
         SERIAL.print((char) STK_NOSYNC);
       }
@@ -1595,49 +1525,48 @@ void avrisp() {
       set_parameters();
       empty_reply();
       break;
-    case 'E': // extended parameters - ignore for now
+    case 'E':  // extended parameters - ignore for now
       fill(5);
       empty_reply();
       break;
     case 'P':
-      if (!pmode)
-        start_pmode();
+      if (!pmode) start_pmode();
       empty_reply();
       break;
-    case 'U': // set address (word)
+    case 'U':  // set address (word)
       here = getch();
       here += 256 * getch();
       empty_reply();
       break;
 
-    case 0x60: //STK_PROG_FLASH
-      getch(); // low addr
-      getch(); // high addr
+    case 0x60:  // STK_PROG_FLASH
+      getch();  // low addr
+      getch();  // high addr
       empty_reply();
       break;
-    case 0x61: //STK_PROG_DATA
-      getch(); // data
+    case 0x61:  // STK_PROG_DATA
+      getch();  // data
       empty_reply();
       break;
 
-    case 0x64: //STK_PROG_PAGE
+    case 0x64:  // STK_PROG_PAGE
       program_page();
       break;
 
-    case 0x74: //STK_READ_PAGE 't'
+    case 0x74:  // STK_READ_PAGE 't'
       read_page();
       break;
 
-    case 'V': //0x56
+    case 'V':  // 0x56
       universal();
       break;
-    case 'Q': //0x51
+    case 'Q':  // 0x51
       error = 0;
       end_pmode();
       empty_reply();
       break;
 
-    case 0x75: //STK_READ_SIGN 'u'
+    case 0x75:  // STK_READ_SIGN 'u'
       read_signature();
       break;
 
@@ -1652,15 +1581,11 @@ void avrisp() {
     default:
       error++;
       if (CRC_EOP == getch())
-        SERIAL.print((char)STK_UNKNOWN);
+        SERIAL.print((char) STK_UNKNOWN);
       else
-        SERIAL.print((char)STK_NOSYNC);
+        SERIAL.print((char) STK_NOSYNC);
   }
 }
-
-
-
-
 
 #define OUTPUT_LOW 2
 #define SELECT_BIT 3
@@ -1668,52 +1593,49 @@ void avrisp() {
 #define SPI_LED 5
 
 // gorobal SETUP
-void setup(){
+void setup() {
   char swd;
 
-  pinMode(TPI_LED,OUTPUT);
-  pinMode(SPI_LED,OUTPUT);
-  pinMode(OUTPUT_LOW,OUTPUT);
-  digitalWrite(TPI_LED,LOW);
-  digitalWrite(SPI_LED,LOW);
-  digitalWrite(OUTPUT_LOW,LOW);
-  pinMode(SELECT_BIT,INPUT_PULLUP);
+  pinMode(TPI_LED, OUTPUT);
+  pinMode(SPI_LED, OUTPUT);
+  pinMode(OUTPUT_LOW, OUTPUT);
+  digitalWrite(TPI_LED, LOW);
+  digitalWrite(SPI_LED, LOW);
+  digitalWrite(OUTPUT_LOW, LOW);
+  pinMode(SELECT_BIT, INPUT_PULLUP);
 
-/*
-  while (Serial.available() <= 0);
-  swd = Serial.read();
-  if (swd == 'I') {
-    digitalWrite(TPI_LED,HIGH);
-    tpi_setup();
-  } else {
-    digitalWrite(SPI_LED,HIGH);
-    isp_setup();
-  }
+  /*
+    while (Serial.available() <= 0);
+    swd = Serial.read();
+    if (swd == 'I') {
+      digitalWrite(TPI_LED,HIGH);
+      tpi_setup();
+    } else {
+      digitalWrite(SPI_LED,HIGH);
+      isp_setup();
+    }
 
- */
+   */
 
 #if MODE_SELECTION == MODE_ISP
-  digitalWrite(SPI_LED,HIGH);
+  digitalWrite(SPI_LED, HIGH);
   Serial.begin(BAUDRATE_SPI);
   isp_setup();
 #elif MODE_SELECTION == MODE_TPI
-  digitalWrite(TPI_LED,HIGH);
+  digitalWrite(TPI_LED, HIGH);
   Serial.begin(BAUDRATE_TPI);
   tpi_setup();
 #elif MODE_SELECTION == MODE_INPUT_SELECT
-  if (digitalRead(SELECT_BIT) == LOW ) {
-    digitalWrite(TPI_LED,HIGH);
-      Serial.begin(BAUDRATE_TPI);
+  if (digitalRead(SELECT_BIT) == LOW) {
+    digitalWrite(TPI_LED, HIGH);
+    Serial.begin(BAUDRATE_TPI);
     tpi_setup();
   } else {
-    digitalWrite(SPI_LED,HIGH);
+    digitalWrite(SPI_LED, HIGH);
     Serial.begin(BAUDRATE_SPI);
     isp_setup();
   }
 #endif
-  
 }
 // Dummy LOOP
-void loop(){
-
-}
+void loop() {}
