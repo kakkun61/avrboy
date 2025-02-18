@@ -1,3 +1,11 @@
+#define MODE_SPI 1
+#define MODE_TPI 2
+#define MODE_INPUT_SELECT 3
+
+#ifndef MODE_SELECTION
+#define MODE_SELECTION MODE_INPUT_SELECT
+#endif
+
 /***************************************************
 This sketch include  ArduinoISP and ATTiny_4_5_9_10_20_40Programmer.
 SPI mode == ArduinoISP
@@ -1684,6 +1692,15 @@ void setup(){
 
  */
 
+#if MODE_SELECTION == MODE_ISP
+  digitalWrite(SPI_LED,HIGH);
+  Serial.begin(BAUDRATE_SPI);
+  isp_setup();
+#elif MODE_SELECTION == MODE_TPI
+  digitalWrite(TPI_LED,HIGH);
+  Serial.begin(BAUDRATE_TPI);
+  tpi_setup();
+#elif MODE_SELECTION == MODE_INPUT_SELECT
   if (digitalRead(SELECT_BIT) == LOW ) {
     digitalWrite(TPI_LED,HIGH);
       Serial.begin(BAUDRATE_TPI);
@@ -1693,6 +1710,7 @@ void setup(){
     Serial.begin(BAUDRATE_SPI);
     isp_setup();
   }
+#endif
   
 }
 // Dummy LOOP
